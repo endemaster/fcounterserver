@@ -4,20 +4,36 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 
-let globalCount = 0;
+// netlify frontend
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
 
+let count = 0;
+
+// socket.io connections
 io.on("connection", (socket) => {
-  // hutrix is only three but this hopefully more lol
-  socket.emit("countUpdate", globalCount);
+  console.log("a user connected");
 
-  // upupup its our momentttt
+  // send to client
+  socket.emit("countUpdate", count);
+
+  // f pressing
   socket.on("increment", () => {
-    globalCount++;
-    io.emit("countUpdate", globalCount);
+    count++;
+    io.emit("countUpdate", count); // broadcast to all
+  });
+
+  socket.on("disconnect", () => {
+    console.log("a user disconnected");
   });
 });
 
+// bind to 0.0.0.0
 const PORT = process.env.PORT || 3000;
-server.listen(PORT);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
