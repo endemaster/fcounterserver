@@ -14,9 +14,36 @@ const io = new Server(server, {
 
 let count = 0;
 
+const fs = require("fs");
+const file = "count.json";
+
+let count = 0;
+
+// Load count from file if exists
+if (fs.existsSync(file)) {
+  count = JSON.parse(fs.readFileSync(file, "utf-8")).count;
+}
+
+// Save every time it changes
+function saveCount() {
+  fs.writeFileSync(file, JSON.stringify({ count }));
+}
+
+
+// save the counter
+io.on("connection", (socket) => {
+  socket.emit("countUpdate", count);
+  socket.on("increment", () => {
+    count++;
+    saveCount();
+    io.emit("countUpdate", count);
+  });
+});
+
+
 // socket.io connections
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  console.log("connect");
 
   // send to client
   socket.emit("countUpdate", count);
@@ -28,7 +55,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("a user disconnected");
+    console.log("disconnect");
   });
 });
 
