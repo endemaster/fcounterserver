@@ -8,7 +8,7 @@ const server = http.createServer(app);
 // netlify frontend
 const io = new Server(server, {
   cors: {
-    origin: "*"
+    origin: "https://spamyourfkey.com"
   }
 });
 
