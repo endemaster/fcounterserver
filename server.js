@@ -30,20 +30,10 @@ function saveCount() {
 }
 
 
-// save the counter
-io.on("connection", (socket) => {
-  socket.emit("countUpdate", count);
-  socket.on("increment", () => {
-    count++;
-    saveCount();
-    io.emit("countUpdate", count);
-  });
-});
-
 
 // socket.io connections
 io.on("connection", (socket) => {
-  console.log("connect");
+  console.log("a user connected");
 
   // send to client
   socket.emit("countUpdate", count);
@@ -55,7 +45,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("disconnect");
+    console.log("a user disconnected");
   });
 });
 
