@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
@@ -12,35 +13,37 @@ const io = new Server(server, {
   }
 });
 
-let count = 0;
-
-const fs = require("fs");
 const file = "count.json";
-
 let count = 0;
 
-// Load count from file if exists
+// check count
 if (fs.existsSync(file)) {
-  count = JSON.parse(fs.readFileSync(file, "utf-8")).count;
+  try {
+    const data = JSON.parse(fs.readFileSync(file, "utf-8"));
+    if (typeof data.count === "number") {
+      count = data.count;
+    }
+  } catch (err) {
+    console.error("Error reading count.json:", err);
+  }
 }
 
-// Save every time it changes
+// save count
 function saveCount() {
   fs.writeFileSync(file, JSON.stringify({ count }));
 }
-
-
 
 // socket.io connections
 io.on("connection", (socket) => {
   console.log("a user connected");
 
-  // send to client
+  // sent count
   socket.emit("countUpdate", count);
 
-  // f pressing
+  // f
   socket.on("increment", () => {
     count++;
+    saveCount(); // persist to file
     io.emit("countUpdate", count); // broadcast to all
   });
 
