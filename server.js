@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const fs = require("fs");
+const fs = require("fs"); // local files final boss lol
 
 const app = express();
 const server = http.createServer(app);
@@ -31,15 +31,25 @@ let count = 0;
       )
     `);
 
-    const { rows } = await pool.query("SELECT count FROM counter WHERE id = 1");
-    if (rows[0]) count = rows[0].count;
-    else await pool.query("INSERT INTO counter(id, count) VALUES(1, 0)");
+      const res = await pool.query(`
+      INSERT INTO counter(id, count) VALUES (1, 0)
+      ON CONFLICT (id) DO NOTHING
+      RETURNING count
+    `);
+    if (res.rows[0]) {
+      count = res.rows[0].count;
+    } else {
+      const { rows } = await pool.query("SELECT count FROM counter WHERE id = 1");
+      count = rows[0].count;
+    }
 
-    console.log("Counter initialized:", count);
+
+    console.log("Current count:", count);
   } catch (err) {
-    console.error("Error initializing counter:", err);
+    console.error("error:", err);
   }
 })();
+
 
 
 // socket.io connections
@@ -53,11 +63,14 @@ io.on("connection", (socket) => {
   socket.on("increment", async () => {
   try {
     await pool.query("UPDATE counter SET count = count + 1 WHERE id = 1");
-    const res = await pool.query("SELECT count FROM counter WHERE id = 1");
+    const res = await pool.query(
+       "UPDATE counter SET count = count + 1 WHERE id = 1 RETURNING count"
+    );
     count = res.rows[0].count;
     io.emit("countUpdate", count);
+
   } catch (err) {
-    console.error("Error incrementing counter:", err);
+    console.error("error:", err);
   }
 });
 
