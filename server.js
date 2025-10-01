@@ -13,25 +13,34 @@ const io = new Server(server, {
   }
 });
 
-const file = "count.json";
+const { Pool } = require("pg"); // add at top with your other requires
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
 let count = 0;
 
-// check count
-if (fs.existsSync(file)) {
+// coun
+(async () => {
   try {
-    const data = JSON.parse(fs.readFileSync(file, "utf-8"));
-    if (typeof data.count === "number") {
-      count = data.count;
-    }
-  } catch (err) {
-    console.error("Error reading count.json:", err);
-  }
-}
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS counter (
+        id SERIAL PRIMARY KEY,
+        count INT DEFAULT 0
+      )
+    `);
 
-// save count
-function saveCount() {
-  fs.writeFileSync(file, JSON.stringify({ count }));
-}
+    const { rows } = await pool.query("SELECT count FROM counter WHERE id = 1");
+    if (rows[0]) count = rows[0].count;
+    else await pool.query("INSERT INTO counter(id, count) VALUES(1, 0)");
+
+    console.log("Counter initialized:", count);
+  } catch (err) {
+    console.error("Error initializing counter:", err);
+  }
+})();
+
 
 // socket.io connections
 io.on("connection", (socket) => {
@@ -40,12 +49,18 @@ io.on("connection", (socket) => {
   // sent count
   socket.emit("countUpdate", count);
 
-  // f
-  socket.on("increment", () => {
-    count++;
-    saveCount(); // persist to file
-    io.emit("countUpdate", count); // broadcast to all
-  });
+  // f but in neon
+  socket.on("increment", async () => {
+  try {
+    await pool.query("UPDATE counter SET count = count + 1 WHERE id = 1");
+    const res = await pool.query("SELECT count FROM counter WHERE id = 1");
+    count = res.rows[0].count;
+    io.emit("countUpdate", count);
+  } catch (err) {
+    console.error("Error incrementing counter:", err);
+  }
+});
+
 
   socket.on("disconnect", () => {
     console.log("a user disconnected");
