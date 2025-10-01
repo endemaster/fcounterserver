@@ -62,9 +62,8 @@ io.on("connection", (socket) => {
   // f but in neon
   socket.on("increment", async () => {
   try {
-    await pool.query("UPDATE counter SET count = count + 1 WHERE id = 1");
     const res = await pool.query(
-       "UPDATE counter SET count = count + 1 WHERE id = 1 RETURNING count"
+       "UPDATE counter SET count = count + 694200 WHERE id = 1 RETURNING count"
     );
     count = res.rows[0].count;
     io.emit("countUpdate", count);
