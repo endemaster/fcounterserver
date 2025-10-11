@@ -66,6 +66,9 @@ socket.on("increment", async () => {
   const { count: currentCount, click } = res.rows[0];
   const newCount = currentCount + click;
 
+  // unstrict calculations
+  const newCount = Math.min(currentCount + click, max_count);
+
   await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
   io.emit("countUpdate", newCount);
 });
