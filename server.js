@@ -1,7 +1,8 @@
+// zesty ahh code
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const fs = require("fs"); // local files final boss lol
+const fs = require("fs"); // used in singleplayer mode, but not used anywhere here
 
 const app = express();
 const server = http.createServer(app);
@@ -21,7 +22,7 @@ const pool = new Pool({
 
 let count = 0;
 
-// coun
+// counter
 (async () => {
   try {
     await pool.query(`
@@ -59,14 +60,15 @@ io.on("connection", (socket) => {
   // sent count
   socket.emit("countUpdate", count);
 
-  // f but in neon
-  socket.on("increment", async () => {
-  try {
-    const res = await pool.query(
-       "UPDATE counter SET count = count + 1 WHERE id = 1 RETURNING count"
-    );
-    count = res.rows[0].count;
-    io.emit("countUpdate", count);
+  // socket.onnnnnnn
+socket.on("increment", async () => {
+  const res = await pool.query("SELECT count, click_value FROM counter WHERE id = 1");
+  const { count: currentCount, click_value } = res.rows[0];
+  const newCount = currentCount + click_value;
+
+  await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
+  io.emit("countUpdate", newCount);
+});
 
   } catch (err) {
     console.error("error:", err);
