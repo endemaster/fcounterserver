@@ -1,4 +1,13 @@
 // zesty ahh code
+// yes, i store a copy of my latest server code inside of my website.
+// you can also access the same code at my github
+// endemaster/fcounterserver
+// please visit!
+
+
+
+
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -10,7 +19,7 @@ const server = http.createServer(app);
 // netlify frontend
 const io = new Server(server, {
   cors: {
-    origin: "https://spamyourfkey.com"
+    origin: "https://spamyourfkey.com" // spamyourfkey.com/global
   }
 });
 
@@ -24,13 +33,28 @@ let count = 0;
 
 // counter
 (async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS counter (
-        id SERIAL PRIMARY KEY,
-        count INT DEFAULT 0
-      )
-    `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS counter (
+      id SERIAL PRIMARY KEY,
+      count INT DEFAULT 0,
+      click INT DEFAULT 1,
+      max INT DEFAULT 200
+    )
+  `);
+
+
+
+
+
+
+
+  // white space
+  // :)
+
+
+
+
+
 
       const res = await pool.query(`
       INSERT INTO counter(id, count) VALUES (1, 0)
@@ -89,6 +113,7 @@ socket.on("increment", async () => {
 setInterval(async () => {
   try {
     const res = await pool.query("SELECT count FROM counter WHERE id = 1");
+    if (res.rows[0]) // is this the magical fix??
     const dbCount = res.rows[0].count;
     if (dbCount !== count) {
       count = dbCount;
