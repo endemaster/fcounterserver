@@ -33,6 +33,7 @@ let count = 0;
 
 // counter
 (async () => {
+  try {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS counter (
       id SERIAL PRIMARY KEY,
