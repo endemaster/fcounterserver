@@ -86,22 +86,18 @@ io.on("connection", (socket) => {
 
   // socket.onnnnnnn
 socket.on("increment", async () => {
-  const res = await pool.query("SELECT count, click FROM counter WHERE id = 1");
-  const { count: currentCount, click } = res.rows[0];
-  const newCount = currentCount + click;
+  try {
+    const res = await pool.query("SELECT count, click, max FROM counter WHERE id = 1");
+    const { count: currentCount, click, max } = res.rows[0];
 
-  // unstrict calculations
-  const newCount = Math.min(currentCount + click, max);
+    const newCount = Math.min(currentCount + click, max);
 
-  await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
-  io.emit("countUpdate", newCount);
-});
-
+    await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
+    io.emit("countUpdate", newCount);
   } catch (err) {
-    console.error("error:", err);
+    console.error("error, error, error:", err);
   }
 });
-
 
   socket.on("disconnect", () => {
     console.log("a user disconnected");
