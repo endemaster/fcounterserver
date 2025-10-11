@@ -62,9 +62,9 @@ io.on("connection", (socket) => {
 
   // socket.onnnnnnn
 socket.on("increment", async () => {
-  const res = await pool.query("SELECT count, click_value FROM counter WHERE id = 1");
-  const { count: currentCount, click_value } = res.rows[0];
-  const newCount = currentCount + click_value;
+  const res = await pool.query("SELECT count, click FROM counter WHERE id = 1");
+  const { count: currentCount, click } = res.rows[0];
+  const newCount = currentCount + click;
 
   await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
   io.emit("countUpdate", newCount);
