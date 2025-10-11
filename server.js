@@ -110,11 +110,12 @@ socket.on("increment", async () => {
 setInterval(async () => {
   try {
     const res = await pool.query("SELECT count FROM counter WHERE id = 1");
-    if (res.rows[0]) // is this the magical fix??
-    const dbCount = res.rows[0].count;
-    if (dbCount !== count) {
-      count = dbCount;
-      io.emit("countUpdate", count);
+    if (res.rows[0]) {
+      const dbCount = res.rows[0].count;
+      if (dbCount !== count) {
+        count = dbCount;
+        io.emit("countUpdate", count);
+      }
     }
   } catch (err) {
     console.error("zesty sync just happened, at number:", err);
