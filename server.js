@@ -81,6 +81,21 @@ socket.on("increment", async () => {
   });
 });
 
+// listen listen listen
+// update update update
+setInterval(async () => {
+  try {
+    const res = await pool.query("SELECT count FROM counter WHERE id = 1");
+    const dbCount = res.rows[0].count;
+    if (dbCount !== count) {
+      count = dbCount;
+      io.emit("countUpdate", count);
+    }
+  } catch (err) {
+    console.error("zesty sync just happened, at number:", err);
+  }
+}, 5001); // 5.001 seconds
+
 // bind to 0.0.0.0
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
