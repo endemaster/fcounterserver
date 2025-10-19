@@ -1,8 +1,6 @@
 // zesty ahh code
-// yes, i store a copy of my latest server code inside of my website.
-// you can also access the same code at my github
-// endemaster/fcounterserver
-// please visit!
+
+
 
 
 
@@ -36,10 +34,12 @@ let count = 0;
   try {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS counter (
-      id SERIAL PRIMARY KEY,
-      count INT DEFAULT 0,
-      click INT DEFAULT 1,
-      max INT DEFAULT 200
+  id SERIAL PRIMARY KEY,
+  count NUMERIC DEFAULT 0,
+  click NUMERIC DEFAULT 1,
+  max NUMERIC DEFAULT 200
+)
+
     )
   `);
 
@@ -50,7 +50,7 @@ let count = 0;
 
 
   // white space
-  // :)
+ 
 
 
 
@@ -78,6 +78,11 @@ let count = 0;
 
 
 
+
+
+
+
+
 // socket.io connections
 io.on("connection", (socket) => {
   console.log("a user connected");
@@ -87,20 +92,25 @@ io.on("connection", (socket) => {
 
   // socket.onnnnnnn
 socket.on("increment", async () => {
+
   try {
-    const res = await pool.query("SELECT count, click, max FROM counter WHERE id = 1");
-    const { count: currentCount, click, max } = res.rows[0];
 
-    const newCount = Math.min(currentCount + click, max);
+   const { count: currentCount, click, max } = res.rows[0];
 
-    await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
-    io.emit("countUpdate", newCount);
+// if it doesnt work, there something is wrong with this part
+
+const newCount = (BigInt(currentCount) + BigInt(click)).toString();
+
+await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
+io.emit("countUpdate", newCount);
+
   } catch (err) {
     console.error("error, error, error:", err);
   }
 });
 
   socket.on("disconnect", () => {
+
     console.log("a user disconnected");
   });
 });
