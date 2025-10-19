@@ -92,22 +92,24 @@ io.on("connection", (socket) => {
 
   // socket.onnnnnnn
 socket.on("increment", async () => {
-
   try {
+    const res = await pool.query("SELECT count, click FROM counter WHERE id = 1");
+    const { count: currentCount, click } = res.rows[0];
 
-   const { count: currentCount, click, max } = res.rows[0];
+      // if it doesnt work, something is wrong with this part
+      // as it turns out, something was wrong with this part
 
-// if it doesnt work, there something is wrong with this part
+    const newCount = BigInt(currentCount) + BigInt(click);
 
-const newCount = (BigInt(currentCount) + BigInt(click)).toString();
+    await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount.toString()]);
 
-await pool.query("UPDATE counter SET count = $1 WHERE id = 1", [newCount]);
-io.emit("countUpdate", newCount);
-
+    count = newCount;
+    io.emit("countUpdate", newCount.toString());
   } catch (err) {
     console.error("error, error, error:", err);
   }
 });
+
 
   socket.on("disconnect", () => {
 
