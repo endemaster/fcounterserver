@@ -40,7 +40,7 @@ let count = 0;
   max NUMERIC DEFAULT 200
 )
 
-    )
+    
   `);
 
 
@@ -126,13 +126,13 @@ setInterval(async () => {
       const dbCount = res.rows[0].count;
       if (dbCount !== count) {
         count = dbCount;
-        io.emit("countUpdate", count);
+        io.emit("countUpdate", count.toString()); // ensure it's serializable
       }
     }
   } catch (err) {
     console.error("zesty sync just happened, at number:", err);
   }
-}, 5001); // 5.001 seconds
+}, 5001); // 5001 seconds
 
 // bind to 0.0.0.0
 const PORT = process.env.PORT || 3000;
