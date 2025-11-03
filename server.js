@@ -25,7 +25,7 @@ const io = new Server(server, {
   }
 });
 
-const { Pool } = require("pg"); // add at top with your other requires
+const { Pool } = require("pg");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
@@ -130,15 +130,13 @@ setInterval(async () => {
       const dbCount = res.rows[0].count;
       if (dbCount !== count) {
         count = dbCount;
-        io.emit("countUpdate", count.toString()); // ensure it's serializable
+        io.emit("countUpdate", count.toString());
       }
     }
   } catch (err) {
     console.error("zesty sync just happened, at number:", err);
   }
 }, 5001); // 5001 seconds
-
-// bind to 0.0.0.0
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
