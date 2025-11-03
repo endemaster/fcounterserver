@@ -14,6 +14,10 @@ const fs = require("fs"); // used in singleplayer mode, but not used anywhere he
 const app = express();
 const server = http.createServer(app);
 
+app.get("/", (req, res) => {
+  res.status(200).send("https://spamyourfkey.com/global/");
+});
+
 // netlify frontend
 const io = new Server(server, {
   cors: {
